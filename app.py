@@ -1,10 +1,8 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import requests, zipfile, io
-from helpers import url_constructor, extract_and_parse, sort_func
+from models import CaisoRequest
 
 app = Flask(__name__)
-
 CORS(app)
 
 
@@ -12,18 +10,9 @@ CORS(app)
 def get_zip_file(): 
     """ Gets zip file from CAISO API. """
 
-    caiso_url = url_constructor(request.json["data"])
-    include_totals = 'Caiso_Totals' in request.json["data"].values()
-    
-    # make request to CAISO
-    resp = requests.get(caiso_url)
+    caiso_request = CaisoRequest.create_new_request(request.json["data"])
+    caiso_request.get_data()
+    caiso_request.stream_file()
+    response = caiso_request.extract_and_parse()
 
-    # stream file contents and get file name
-    file = zipfile.ZipFile(io.BytesIO(resp.content))
-    fileName = file.namelist()[0]
-
-    # extract and parse file
-    report = extract_and_parse(file, fileName, include_totals)
-    report = sort_func(report)
-
-    return jsonify(report)
+    return jsonify(response)
