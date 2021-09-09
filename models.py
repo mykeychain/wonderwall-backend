@@ -8,9 +8,10 @@ class CaisoRequest():
     """ Class for Caiso Request. """
 
     intervals = {
-        "RTM": 5 * 60 * 1000,
-        "DAM": 60 * 60 * 1000,
-        "RTD": 5 * 60 * 1000,
+        "RTM": 5,
+        "RTD": 5,
+        "DAM": 60,
+        "RUC": 60,
     }
 
     def __init__(self, url, queryname): 
@@ -124,7 +125,7 @@ class CaisoRequest():
                     report: 'ENE_SLRS',
                     mkt_type: 'RTM',
                     UOM: 'MW'
-                    update_interval: 300000,
+                    update_interval: 5,
                 },
         """
 
