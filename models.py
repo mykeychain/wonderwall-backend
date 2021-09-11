@@ -109,7 +109,7 @@ class CaisoRequest():
 
         if (not len(response['reports'].keys())): 
                 print("INSIDE ERROR THROWER")
-                raise NoContentFound("CAISO did not return any content for your query")
+                raise NoContentFound("Error: CAISO did not return any content for your query.")
 
         response['reports'] = self.sort_reports_by_interval_start(response['reports'])
         return response
