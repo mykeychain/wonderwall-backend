@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import requests, zipfile, io
+from exceptions import NoContentFound
 
 BASE_URL = "http://oasis.caiso.com/oasisapi/SingleZip?"
 OASIS_VERSION = "1"
@@ -105,6 +106,10 @@ class CaisoRequest():
 
         if (self.report_type == 'ENE_TRANS_LOSS'): 
             response['reports'] = self._parse_ENE_TRANS_LOSS()
+
+        if (not len(response['reports'].keys())): 
+                print("INSIDE ERROR THROWER")
+                raise NoContentFound("CAISO did not return any content for your query")
 
         response['reports'] = self.sort_reports_by_interval_start(response['reports'])
         return response

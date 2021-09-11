@@ -1,9 +1,15 @@
+from exceptions import NoContentFound
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from models import CaisoRequest
+from exceptions import NoContentFound
 
 app = Flask(__name__)
 CORS(app)
+
+@app.errorhandler(NoContentFound)
+def no_content_found(e):
+    return jsonify(e.to_dict()), e.status_code
 
 
 @app.route('/api/CAISO', methods=['POST'])
