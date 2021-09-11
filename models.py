@@ -3,16 +3,16 @@ import requests, zipfile, io
 from exceptions import NoContentFound
 
 BASE_URL = "http://oasis.caiso.com/oasisapi/SingleZip?"
-OASIS_VERSION = "1"
+OASIS_VERSION = '1'
 
 class CaisoRequest(): 
     """ Class for Caiso Request. """
 
     intervals = {
-        "RTM": 5,
-        "RTD": 5,
-        "DAM": 60,
-        "RUC": 60,
+        'RTM': 5,
+        'RTD': 5,
+        'DAM': 60,
+        'RUC': 60,
     }
 
     def __init__(self, url, queryname): 
@@ -27,7 +27,7 @@ class CaisoRequest():
 
     @staticmethod
     def create_new_request(form_data): 
-        """ Creates a new request. """
+        """ Constructs URL and creates new request. """
         
         url = CaisoRequest.url_constructor(form_data)
         return CaisoRequest(url, form_data['queryname'])
@@ -35,8 +35,9 @@ class CaisoRequest():
 
     @staticmethod
     def url_constructor(form_data): 
-        """ Given dictionary of params, assigns OASIS version depending on
-            queryname, constructs url for CAISO request.
+        """
+        Given dictionary of params, assigns OASIS version depending on
+        queryname, constructs url for CAISO request.
 
         Accepts: {
             queryname: 'ENE_SLRS',
@@ -45,7 +46,7 @@ class CaisoRequest():
             market_run_id: 'RTM',
             startdatetime: '20210818T07:00-0000'
             enddatetime: '20210819T07:00-0000'
-            } 
+        } 
             
         Returns: f'{BASE_URL}?queryname=ENE_SLR&market_run_id=RTM...' 
         """
@@ -92,7 +93,32 @@ class CaisoRequest():
     
 
     def extract_and_parse(self): 
-        """ Calls appropriate function to parse based on self.report_type. """
+        """
+        Calls appropriate function to parse based on self.report_type. Returns
+        response with header and reports. 
+        
+        Returns: 
+            {
+               header: {
+                    report: 'ENE_SLRS',
+                    mkt_type: 'RTM',
+                    UOM: 'MW'
+                    update_interval: 5,
+                },
+                Caiso_totals: {
+                    Export: [
+                        {interval, interval_start_gmt, value},
+                        {interval, interval_start_gmt, value},
+                        ...
+                    ],
+                    Generation: [
+                        {interval, interval_start_gmt, value},
+                        {interval, interval_start_gmt, value},
+                        ...
+                    ]
+                },
+            }
+        """
         response = {}
 
         response['header'] = self._construct_header()
@@ -109,7 +135,7 @@ class CaisoRequest():
 
         if (not len(response['reports'].keys())): 
                 print("INSIDE ERROR THROWER")
-                raise NoContentFound("Error: CAISO did not return any content for your query.")
+                raise NoContentFound("CAISO did not return any content for your query.")
 
         response['reports'] = self.sort_reports_by_interval_start(response['reports'])
         return response
@@ -124,14 +150,15 @@ class CaisoRequest():
 
 
     def _construct_header(self): 
-        """ Parses file to construct response header.
-            Returns: 
-                header: {
-                    report: 'ENE_SLRS',
-                    mkt_type: 'RTM',
-                    UOM: 'MW'
-                    update_interval: 5,
-                },
+        """ 
+        Parses file to construct response header.
+        Returns: 
+            header: {
+                report: 'ENE_SLRS',
+                mkt_type: 'RTM',
+                UOM: 'MW'
+                update_interval: 5,
+            },
         """
 
         with self.file.open(self.filename) as my_file:
@@ -159,25 +186,26 @@ class CaisoRequest():
     
 
     def _parse_ENE_SLRS(self): 
-        """ Extracts and parses file for System Load and Resource
-            Schedules(ENE_SLRS). Replaces data item names with common names
-            (e.g. TOT_GEN_MW -> Generation) Returns dictionary with data.
+        """
+        Extracts and parses file for System Load and Resource
+        Schedules(ENE_SLRS). Replaces data item names with common names
+        (e.g. TOT_GEN_MW -> Generation) Returns dictionary with data.
 
-            Returns: reports: {
-                    Caiso_totals: {
-                        Export: [
-                            {interval, interval_start_gmt, value},
-                            {interval, interval_start_gmt, value},
-                            ...
-                            ],
-                        Generation: [
-                            {interval, interval_start_gmt, value},
-                            {interval, interval_start_gmt, value},
-                            ...
-                            ]
-                        }
+        Returns: reports: {
+                Caiso_totals: {
+                    Export: [
+                        {interval, interval_start_gmt, value},
+                        {interval, interval_start_gmt, value},
+                        ...
+                        ],
+                    Generation: [
+                        {interval, interval_start_gmt, value},
+                        {interval, interval_start_gmt, value},
+                        ...
+                        ]
                     }
                 }
+            }
         """
 
         ENE_SLRS_aliases = {
@@ -226,7 +254,8 @@ class CaisoRequest():
             return reports
 
     def _parse_PRC_LMP(self): 
-        """ Extracts and parses file. Returns dictionary with data.
+        """
+        Extracts and parses file. Returns dictionary with data.
         Returns: response = {
             header: {
                 report: 'ENE_SLRS',
@@ -287,25 +316,26 @@ class CaisoRequest():
 
 
     def _parse_ENE_TRANS_LOSS(self): 
-        """ Extracts and parses file for System Load and Resource
-            Schedules(ENE_SLRS). Replaces data item names with common names
-            (e.g. TOT_GEN_MW -> Generation) Returns dictionary with data.
+        """
+        Extracts and parses file for System Load and Resource
+        Schedules(ENE_SLRS). Replaces data item names with common names
+        (e.g. TOT_GEN_MW -> Generation) Returns dictionary with data.
 
-            Returns: reports: {
-                    AZPS: {
-                        LOSS_MW: [
-                            {interval_start_gmt, value},
-                            {interval_start_gmt, value},
-                            ...
-                            ],
-                        LOSS_MW: [
-                            {interval_start_gmt, value},
-                            {interval_start_gmt, value},
-                            ...
-                            ]
-                        }
-                    }
+        Returns:
+            reports: {
+                AZPS: {
+                    LOSS_MW: [
+                        {interval_start_gmt, value},
+                        {interval_start_gmt, value},
+                        ...
+                        ],
+                    LOSS_MW: [
+                        {interval_start_gmt, value},
+                        {interval_start_gmt, value},
+                        ...
+                        ]
                 }
+            }
         """
 
         with self.file.open(self.filename) as my_file:

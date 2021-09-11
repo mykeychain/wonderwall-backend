@@ -1,4 +1,6 @@
 class NoContentFound(Exception):
+    """ Exception for if CAISO returns no content. """
+    
     status_code = 400
 
     def __init__(self, message, status_code=None):
