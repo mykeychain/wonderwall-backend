@@ -1,3 +1,4 @@
+from werkzeug.utils import redirect, send_file
 from exceptions import NoContentFound
 from flask import Flask, request, jsonify
 from flask_cors import CORS
@@ -20,7 +21,7 @@ def value_error(e):
 @app.errorhandler(500)
 def server_error(e): 
     """ Catch all error handler. Returns 500 error with message. """
-    return jsonify('Internal server error'), 500
+    return jsonify({'message': 'Internal server error'}), 500
 
 @app.route('/api/CAISO', methods=['POST'])
 def get_zip_file(): 
@@ -69,3 +70,12 @@ def get_zip_file():
     response = caiso_request.extract_and_parse()
 
     return jsonify(response)
+
+@app.route('/api/download-xml', methods=['POST'])
+def download_xml(): 
+    """ Gets data from CAISO and sends file for download. """
+
+    xml_request = CaisoRequest.create_new_request(request.json['data'])
+    xml_request.get_data()
+    xml_request.stream_file()
+    return send_file(xml_request.file, as_attachment=True)
