@@ -13,7 +13,7 @@ You can view the deployed website [here](https://mikechang-wonderwall.surge.sh/)
 2. Activate the virtual environment `source venv/bin/activate`
 3. Install dependencies `pip install -r requirements.txt`
 4. Start server locally `flask run`
-    - The server will run on port 3000 by default
+    - The server will run on port 5000 by default
 5. Clone and install the frontend repository [here](https://github.com/mykeychain/Caiso-live-scrape-frontend).
 
 <br>
